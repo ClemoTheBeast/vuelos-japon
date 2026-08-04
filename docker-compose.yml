@@ -1,0 +1,21 @@
+services:
+  runner:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - flightdata:/data
+    command: python -m app.runner
+
+  dashboard:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - flightdata:/data
+    ports:
+      - "8501:8501"
+    command: streamlit run app/dashboard.py --server.address 0.0.0.0 --server.port 8501
+
+volumes:
+  flightdata:
