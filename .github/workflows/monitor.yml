@@ -1,0 +1,73 @@
+name: Monitor de vuelos SCL-Japón
+
+# Cuándo se ejecuta:
+on:
+  schedule:
+    # Todos los días a las 12:00 UTC (~09:00 en Chile). El horario exacto
+    # puede variar ~30-45 min según la carga de GitHub, pero para un chequeo
+    # diario da igual.
+    - cron: "0 12 * * *"
+  # También permite ejecutarlo a mano desde la pestaña Actions (botón "Run"):
+  workflow_dispatch:
+
+jobs:
+  revisar-precios:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Recuperar historial (base de datos)
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: precios-db-${{ github.run_id }}
+          restore-keys: |
+            precios-db-
+
+      - name: Ejecutar monitor
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          MARKET: US
+          LOCALE: es-ES
+          COUNTRY_CODE: CL
+          MAX_LLAMADAS_MES: "500"
+          SMTP_HOST: smtp.gmail.com
+          SMTP_PORT: "587"
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          ORIGIN: SCL
+          DESTINATIONS: NRT,HND,KIX
+          ADULTS: "1"
+          CURRENCY: USD
+          MAX_OFFERS: "30"
+          MAXPRICE_BUSQUEDA: "2600"
+          MAX_HORAS_VUELO: "40"
+          MIN_SALIDA: "2027-03-12"
+          MAX_SALIDA: "2027-04-02"
+          HABILES_MIN: "14"
+          HABILES_MAX: "16"
+          DUR_TOTAL_MIN: "20"
+          DUR_TOTAL_MAX: "28"
+          MAX_ESCALAS: "2"
+          DIAS_SALIDA: "2,3,4,5"
+          HORA_MIN_MIERCOLES: "19:00"
+          SOLO_VIERNES: "false"
+          MAX_COMBOS_POR_CICLO: "8"
+          EMPATE_PRECIO_PCT: "2"
+          PRICE_THRESHOLD: "1700"
+          PCT_BELOW_AVG: "10"
+          ALERT_COOLDOWN_PCT: "3"
+          CHECK_EVERY_HOURS: "24"
+          DB_PATH: data/precios.db
+        run: python -m app.runner --once
