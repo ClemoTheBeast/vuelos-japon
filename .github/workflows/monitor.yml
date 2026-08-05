@@ -52,10 +52,10 @@ jobs:
           DIAS_SALIDA: "2,3,4,5"
           HORA_MIN_MIERCOLES: "19:00"
           SOLO_VIERNES: "false"
-          MAX_COMBOS_POR_CICLO: "8"
+          MAX_COMBOS_POR_CICLO: "10"
           EMPATE_PRECIO_PCT: "2"
-          PRICE_THRESHOLD: "1700"
-          PCT_BELOW_AVG: "10"
+          PRICE_THRESHOLD: "1800"
+          PCT_BELOW_AVG: "0"
           ALERT_COOLDOWN_PCT: "3"
           CHECK_EVERY_HOURS: "24"
           DB_PATH: data/precios.db
